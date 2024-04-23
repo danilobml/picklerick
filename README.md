@@ -1,5 +1,5 @@
-*A REST API project for Rick and Morty.
+## A REST API project in homage to Rick and Morty.
 
-Frameworks and tools:
+### Frameworks and tools:
 - Django
 - Django Restframework
