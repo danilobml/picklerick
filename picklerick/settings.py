@@ -53,6 +53,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'picklerick.urls'
 
+# Test
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
