@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    volumes:
+     - .:/picklerick
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    command: ./entrypoint.sh
