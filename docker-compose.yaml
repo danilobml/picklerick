@@ -8,3 +8,20 @@ services:
     ports:
       - "8000:8000"
     command: ./entrypoint.sh
+    
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=picklerick
+      - POSTGRES_PASSWORD=picklerick
+      - POSTGRES_DB=picklerick
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}
