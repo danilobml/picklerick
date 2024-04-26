@@ -1,0 +1,10 @@
+from django.urls import path, include
+from .views import RickViewSet
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'ricks', RickViewSet, basename='rick')
+
+urlpatterns = [
+    path('', include(router.urls)),
+]
