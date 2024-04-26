@@ -83,13 +83,12 @@ class RickTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_one_rick_non_existent_id(self):
-        new_rick = Rick.objects.create(universe="t380", is_morty_alive=True)
         self.assertFalse(Rick.objects.filter(universe="t390").exists())
         data = {
             "universe": "t390",
             "is_morty_alive": False
         }
-        response = self.client.put(reverse('ricks-detail', args=(new_rick.id+1,)), data)
+        response = self.client.put(reverse('ricks-detail', args=(5,)), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_one_rick(self):
@@ -102,9 +101,5 @@ class RickTestCase(APITestCase):
         self.assertFalse(Rick.objects.filter(universe="t590").exists())
 
     def test_delete_one_rick_non_existent_id(self):
-        checked_universe = "t590"
-        new_rick = Rick.objects.create(universe=checked_universe, is_morty_alive=True)
-        self.assertTrue(Rick.objects.filter(universe=checked_universe).exists())
-
-        response = self.client.delete(reverse('ricks-detail', args=(new_rick.id+1,)))
+        response = self.client.delete(reverse('ricks-detail', args=(5,)))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
