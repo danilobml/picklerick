@@ -30,11 +30,14 @@ class RickTestCase(APITestCase):
 
     def test_create_one_rick(self):
         data = {
-            "universe": "t380",
+            "universe": "t590",
             "is_morty_alive": False
         }
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        rick = Rick.objects.filter(universe="t590").first()
+        all_ricks = Rick.objects.all()
+        self.assertIn(rick, all_ricks)
 
     def test_update_one_rick(self):
         data = {
