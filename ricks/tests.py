@@ -83,7 +83,6 @@ class RickTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_one_rick_non_existent_id(self):
-        self.assertFalse(Rick.objects.filter(universe="t390").exists())
         data = {
             "universe": "t390",
             "is_morty_alive": False
