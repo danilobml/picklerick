@@ -42,12 +42,34 @@ class RickTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(Rick.objects.filter(universe=created_universe).exists())
 
+    def test_create_one_rick_default_is_morty_alive(self):
+        created_universe = "t590"
+        self.assertFalse(Rick.objects.filter(universe=created_universe).exists())
+        data = {
+            "universe": created_universe,
+            "is_morty_alive": ""
+        }
+        response = self.client.post(reverse('ricks-list'), data)
+        new_rick = Rick.objects.filter(universe=created_universe).first()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(new_rick.is_morty_alive, True)
+
+    def test_create_one_rick_already_existent_universe(self):
+        existing_universe = "t590"
+        Rick.objects.create(universe=existing_universe, is_morty_alive=False)
+        data = {
+            "universe": existing_universe,
+            "is_morty_alive": True
+        }
+        response = self.client.post(reverse('ricks-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_create_one_rick_no_data(self):
         data = None
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_one_rick_missing_field_data(self):
+    def test_create_one_rick_missing_universe_data(self):
         data = {
             "universe": "",
             "is_morty_alive": False
