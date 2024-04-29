@@ -23,7 +23,7 @@ class RickTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {
             "id": new_rick.id,
-            "universe": new_rick.universee
+            "universe": new_rick.universe
             })
 
     def test_get_one_rick_non_existent_id(self):
