@@ -13,8 +13,6 @@ class RickSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_paired_morty_universe(self, rick_instance):
-        try:
-            if rick_instance.paired_morty:
-                return rick_instance.paired_morty.universe
-        except Exception:
-            return ""
+        if hasattr(rick_instance, 'paired_morty'):
+            return rick_instance.paired_morty.universe
+        return None

@@ -39,7 +39,6 @@ class MortyTestCase(APITestCase):
         data = {
             "universe": created_universe,
             "is_alive": True,
-            "paired_rick": ""
         }
         response = self.client.post(reverse('morties-list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -50,8 +49,7 @@ class MortyTestCase(APITestCase):
         self.assertFalse(Morty.objects.filter(universe=created_universe).exists())
         data = {
             "universe": created_universe,
-            "is_alive": "",
-            "paired_rick": ""
+            "is_alive": ""
         }
         response = self.client.post(reverse('morties-list'), data)
         new_morty = Morty.objects.filter(universe=created_universe)
@@ -65,8 +63,7 @@ class MortyTestCase(APITestCase):
         Morty.objects.create(universe=existing_universe, is_alive=True)
         data = {
             "universe": existing_universe,
-            "is_alive": True,
-            "paired_rick": ""
+            "is_alive": True
         }
         response = self.client.post(reverse('morties-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -90,8 +87,7 @@ class MortyTestCase(APITestCase):
     def test_create_one_morty_missing_universe_data(self):
         data = {
             "universe": "",
-            "is_alive": True,
-            "paired_rick": ""
+            "is_alive": True
         }
         response = self.client.post(reverse('morties-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -102,8 +98,7 @@ class MortyTestCase(APITestCase):
         self.assertFalse(Morty.objects.filter(universe=modified_universe).exists())
         data = {
             "universe": modified_universe,
-            "is_alive": True,
-            "paired_rick": ""
+            "is_alive": True
         }
         response = self.client.put(reverse('morties-detail', args=(new_morty.id,)), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -132,8 +127,7 @@ class MortyTestCase(APITestCase):
         new_morty = Morty.objects.create(universe="t380", is_alive=True)
         data = {
             "universe": "",
-            "is_alive": True,
-            "paired_rick": ""
+            "is_alive": True
         }
         response = self.client.put(reverse('morties-detail', args=(new_morty.id,)), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -141,8 +135,7 @@ class MortyTestCase(APITestCase):
     def test_update_one_morty_non_existent_id(self):
         data = {
             "universe": "t390",
-            "is_alive": True,
-            "paired_rick": 1
+            "is_alive": True
         }
         response = self.client.put(reverse('morties-detail', args=(5,)), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
