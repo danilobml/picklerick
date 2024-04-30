@@ -6,7 +6,7 @@ from rest_framework import status
 from .serializers import MortySerializer
 
 
-class RickTestCase(APITestCase):
+class MortyTestCase(APITestCase):
     """
         Test for CRUD functionalities for the 'morties' endpoint
     """

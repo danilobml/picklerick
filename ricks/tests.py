@@ -23,6 +23,7 @@ class RickTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {
             "id": new_rick.id,
+            "paired_morty_universe": '',
             "universe": new_rick.universe
             })
 

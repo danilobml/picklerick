@@ -8,4 +8,4 @@ class Morty(models.Model):
     """
     universe = models.CharField(max_length=255, unique=True)
     is_alive = models.BooleanField(default=True)
-    paired_rick = models.OneToOneField(Rick, on_delete=models.PROTECT)
+    paired_rick = models.OneToOneField(Rick, on_delete=models.PROTECT, related_name='paired_morty')
