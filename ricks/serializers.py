@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Rick
+from morties.models import Morty
 
 
 class RickSerializer(serializers.ModelSerializer):
@@ -13,6 +14,7 @@ class RickSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_paired_morty_universe(self, rick_instance):
-        if hasattr(rick_instance, 'paired_morty'):
+        try:
             return rick_instance.paired_morty.universe
-        return None
+        except Morty.DoesNotExist:
+            return None
