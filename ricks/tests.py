@@ -3,12 +3,17 @@ from rest_framework.test import APITestCase
 from .models import Rick
 from django.urls import reverse
 from rest_framework import status
+from morties.models import Morty
 
 
 class RickTestCase(APITestCase):
     """
         Test for CRUD functionalities for the 'ricks' endpoint
     """
+
+    def setUp(self):
+        Rick.objects.all().delete()
+        Morty.objects.all().delete()
 
     def test_get_all_ricks(self):
         Rick.objects.create(universe="t380")
@@ -24,6 +29,7 @@ class RickTestCase(APITestCase):
         self.assertEqual(response.data, {
             "id": new_rick.id,
             "paired_morty_universe": None,
+            "paired_morty": None,
             "universe": new_rick.universe
             })
 
@@ -62,6 +68,16 @@ class RickTestCase(APITestCase):
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_one_rick_paired_with_already_paired_morty(self):
+        morty = Morty.objects.create(universe="s360")
+        Rick.objects.create(universe="t380", paired_morty=morty)
+        data = {
+            "universe": "s490",
+            "paired_morty": morty.id
+        }
+        response = self.client.post(reverse('ricks-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_update_one_rick(self):
         modified_universe = "t390"
         new_rick = Rick.objects.create(universe="t380")
@@ -72,6 +88,18 @@ class RickTestCase(APITestCase):
         response = self.client.put(reverse('ricks-detail', args=(new_rick.id,)), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(Rick.objects.filter(universe=modified_universe).exists())
+
+    def test_update_one_rick_paired_with_already_paired_morty(self):
+        already_paired_morty = Morty.objects.create(universe="s360")
+        morty2 = Morty.objects.create(universe="t480")
+        Rick.objects.create(universe="t380", paired_morty=already_paired_morty)
+        new_rick = Rick.objects.create(universe="t490", paired_morty=morty2)
+        data = {
+            "universe": new_rick.universe,
+            "paired_morty": already_paired_morty.id
+        }
+        response = self.client.put(reverse('ricks-detail', args=(new_rick.id,)), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_one_rick_no_data(self):
         new_rick = Rick.objects.create(universe="t380")

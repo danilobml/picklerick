@@ -1,6 +1,5 @@
 from rest_framework.test import APITestCase
 from .models import Morty
-from ricks.models import Rick
 from django.urls import reverse
 from rest_framework import status
 import json
@@ -67,16 +66,6 @@ class MortyTestCase(APITestCase):
         response = self.client.post(reverse('morties-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_one_morty_paired_with_already_paired_rick(self):
-        rick = Rick.objects.create(universe="s360")
-        Morty.objects.create(universe="t380", is_alive=True, paired_rick=rick)
-        data = {
-            "universe": "s490",
-            "paired_rick": rick.id
-        }
-        response = self.client.post(reverse('morties-list'), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
     def test_create_one_morty_no_data(self):
         data = None
         response = self.client.post(reverse('morties-list'), data)
@@ -99,19 +88,6 @@ class MortyTestCase(APITestCase):
         response = self.client.put(reverse('morties-detail', args=(new_morty.id,)), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(Morty.objects.filter(universe=modified_universe).exists())
-
-    def test_update_one_morty_paired_with_already_paired_rick(self):
-        already_paired_rick = Rick.objects.create(universe="s360")
-        rick2 = Rick.objects.create(universe="t480")
-        Morty.objects.create(universe="t380", is_alive=True, paired_rick=already_paired_rick)
-        new_morty = Morty.objects.create(universe="t490", is_alive=False, paired_rick=rick2)
-        data = {
-            "universe": new_morty.universe,
-            "is_alive": new_morty.is_alive,
-            "paired_rick": already_paired_rick.id
-        }
-        response = self.client.put(reverse('morties-detail', args=(new_morty.id,)), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_one_morty_no_data(self):
         new_morty = Morty.objects.create(universe="t380", is_alive=True)

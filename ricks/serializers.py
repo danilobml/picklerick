@@ -1,20 +1,18 @@
 from rest_framework import serializers
 from .models import Rick
-from morties.models import Morty
 
 
 class RickSerializer(serializers.ModelSerializer):
     """
         Serializer for Ricks
     """
-    paired_morty_universe = serializers.SerializerMethodField()
+    paired_morty_universe = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Rick
         fields = "__all__"
 
     def get_paired_morty_universe(self, rick_instance):
-        try:
+        if rick_instance.paired_morty is not None:
             return rick_instance.paired_morty.universe
-        except Morty.DoesNotExist:
-            return None
+        return None
