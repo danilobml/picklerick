@@ -11,10 +11,6 @@ class RickTestCase(APITestCase):
         Test for CRUD functionalities for the 'ricks' endpoint
     """
 
-    def setUp(self):
-        Rick.objects.all().delete()
-        Morty.objects.all().delete()
-
     def test_get_all_ricks(self):
         Rick.objects.create(universe="t380")
         Rick.objects.create(universe="t490")
