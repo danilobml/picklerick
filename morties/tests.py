@@ -27,8 +27,7 @@ class MortyTestCase(APITestCase):
         self.assertEqual(response.data, {
             "id": new_morty.id,
             "universe": new_morty.universe,
-            "is_alive": new_morty.is_alive,
-            "paired_rick": None
+            "is_alive": new_morty.is_alive
             })
 
     def test_get_one_morty_non_existent_id(self):
