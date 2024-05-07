@@ -1,3 +1,11 @@
-# from django.shortcuts import render
+from rest_framework.viewsets import ModelViewSet
+from .models import Morty
+from .serializers import MortySerializer
 
-# # Create your views here.
+
+class MortyViewSet(ModelViewSet):
+    """
+        A viewset for viewing and editing Morties.
+    """
+    serializer_class = MortySerializer
+    queryset = Morty.objects.all()
