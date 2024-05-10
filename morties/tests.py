@@ -1,5 +1,6 @@
 from rest_framework.test import APITestCase
 from .models import Morty
+from ricks.models import Rick
 from django.urls import reverse
 from rest_framework import status
 import json
@@ -27,6 +28,7 @@ class MortyTestCase(APITestCase):
                 "id": new_morty.id,
                 "universe": new_morty.universe,
                 "is_alive": new_morty.is_alive,
+                "paired_rick": None
             },
         )
 
@@ -56,6 +58,28 @@ class MortyTestCase(APITestCase):
         self.assertTrue(Morty.objects.filter(universe=created_universe).exists())
         self.assertTrue(new_morty.is_alive)
 
+    def test_create_one_morty_already_paired_rick_no_alive_morty(self):
+        rick = Rick.objects.create(universe="t450")
+        Morty.objects.create(universe="c320", is_alive=False, paired_rick=rick)
+        data = {
+                "universe": "t580",
+                "is_alive": True,
+                "paired_rick": rick.id
+            }
+        response = self.client.post(reverse("morties-list"), data=json.dumps(data), content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_one_morty_already_paired_rick_with_alive_morty(self):
+        rick = Rick.objects.create(universe="t450")
+        Morty.objects.create(universe="c320", is_alive=True, paired_rick=rick)
+        data = {
+                "universe": "t580",
+                "is_alive": True,
+                "paired_rick": rick.id
+            }
+        response = self.client.post(reverse("morties-list"), data=json.dumps(data), content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_create_one_morty_already_existent_universe(self):
         existing_universe = "t590"
         Morty.objects.create(universe=existing_universe, is_alive=True)
@@ -83,6 +107,32 @@ class MortyTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(Morty.objects.filter(universe=modified_universe).exists())
+
+    def test_update_one_morty_already_paired_rick_no_alive_morty(self):
+        rick = Rick.objects.create(universe="t450")
+        Morty.objects.create(universe="c320", is_alive=False, paired_rick=rick)
+        new_morty = Morty.objects.create(universe="t380", is_alive=True)
+        data = {
+                "universe": "t580",
+                "is_alive": True,
+                "paired_rick": rick.id
+            }
+        response = self.client.put(reverse(
+            "morties-detail", args=(new_morty.id,)), data=json.dumps(data), content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_one_morty_already_paired_rick_with_alive_morty(self):
+        rick = Rick.objects.create(universe="t450")
+        Morty.objects.create(universe="c320", is_alive=True, paired_rick=rick)
+        new_morty = Morty.objects.create(universe="t380", is_alive=True)
+        data = {
+                "universe": "t580",
+                "is_alive": True,
+                "paired_rick": rick.id
+            }
+        response = self.client.put(reverse(
+            "morties-detail", args=(new_morty.id,)), data=json.dumps(data), content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_one_morty_no_data(self):
         new_morty = Morty.objects.create(universe="t380", is_alive=True)
