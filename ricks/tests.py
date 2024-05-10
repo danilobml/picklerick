@@ -1,6 +1,7 @@
 
 from rest_framework.test import APITestCase
 from .models import Rick
+from morties.models import Morty
 from django.urls import reverse
 from rest_framework import status
 
@@ -25,6 +26,30 @@ class RickTestCase(APITestCase):
             "id": new_rick.id,
             "universe": new_rick.universe,
             "paired_morties": []
+            })
+
+    def test_get_one_rick_with_all_paired_morties(self):
+        new_rick = Rick.objects.create(universe="t380")
+        paired_morty1 = Morty.objects.create(universe="t380", is_alive=True, paired_rick=new_rick)
+        paired_morty2 = Morty.objects.create(universe="t460", is_alive=False, paired_rick=new_rick)
+        response = self.client.get(reverse('ricks-detail', args=(new_rick.id,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
+            "id": new_rick.id,
+            "universe": new_rick.universe,
+            "paired_morties": [
+                {
+                    "id": paired_morty1.id,
+                    "universe": paired_morty1.universe,
+                    "is_alive": paired_morty1.is_alive,
+                    "paired_rick": new_rick.id
+                },
+                {
+                    "id": paired_morty2.id,
+                    "universe": paired_morty2.universe,
+                    "is_alive": paired_morty2.is_alive,
+                    "paired_rick": new_rick.id
+                }]
             })
 
     def test_get_one_rick_non_existent_id(self):

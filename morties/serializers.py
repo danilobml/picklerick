@@ -13,13 +13,10 @@ class MortySerializer(serializers.ModelSerializer):
         model = Morty
         fields = "__all__"
 
-    def validate(self, data):
-        rick = data.get('paired_rick')
+    def validate_paired_rick(self, rick):
         if rick is None:
-            return data
-
+            return None
         rick = Rick.objects.get(pk=rick.id)
-        if rick.paired_morties.filter(is_alive=True).exists() and data.get("is_alive"):
+        if rick.paired_morties.filter(is_alive=True).exists() and self.initial_data.get("is_alive"):
             raise ValidationError({"error": "Rick already has a living paired Morty."})
-
-        return data
+        return rick
