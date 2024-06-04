@@ -87,7 +87,7 @@ class RickTestCase(APITestCase):
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_update_ricks_universe(self):
+    def test_update_one_rick(self):
         modified_universe = "t390"
         new_rick = Rick.objects.create(universe="t380")
         self.assertFalse(Rick.objects.filter(universe=modified_universe).exists())
@@ -95,7 +95,8 @@ class RickTestCase(APITestCase):
             "universe": modified_universe
         }
         response = self.client.put(reverse('ricks-detail', args=(new_rick.id,)), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(Rick.objects.filter(universe=modified_universe).exists())
 
     def test_update_one_rick_no_data(self):
         new_rick = Rick.objects.create(universe="t380")
