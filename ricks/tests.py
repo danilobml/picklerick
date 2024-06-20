@@ -4,12 +4,20 @@ from .models import Rick
 from morties.models import Morty
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
 
 
 class RickTestCase(APITestCase):
     """
         Test for CRUD functionalities for the 'ricks' endpoint
     """
+
+    client = APIClient()
+
+    def setUp(self):
+        User.objects.create_superuser(username="admin", password="adminpass")
+        self.client.login(username="admin", password="adminpass")
 
     def test_get_all_ricks(self):
         Rick.objects.create(universe="t380")
@@ -25,7 +33,8 @@ class RickTestCase(APITestCase):
         self.assertEqual(response.data, {
             "id": new_rick.id,
             "universe": new_rick.universe,
-            "paired_morties": []
+            "paired_morties": [],
+            "user": None
             })
 
     def test_get_one_rick_with_all_paired_morties(self):
@@ -49,7 +58,8 @@ class RickTestCase(APITestCase):
                     "universe": paired_morty2.universe,
                     "is_alive": paired_morty2.is_alive,
                     "paired_rick": new_rick.id
-                }]
+                }],
+            "user": None
             })
 
     def test_get_one_rick_non_existent_id(self):
@@ -130,3 +140,21 @@ class RickTestCase(APITestCase):
     def test_delete_one_rick_non_existent_id(self):
         response = self.client.delete(reverse('ricks-detail', args=(5,)))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unlogged_user(self):
+        self.client.logout()
+        response = self.client.get(reverse("ricks-list"))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_logged_user_is_not_admin_or_rick(self):
+        User.objects.create_user(username="notrick", password="notrickspass")
+        self.client.login(username="notrick", password="notrickspass")
+        response = self.client.get(reverse("ricks-list"))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_logged_user_is_rick(self):
+        Rick.objects.create(universe="s350")
+        self.client.login(username="s350", password="rickspass")
+        response = self.client.get(reverse("ricks-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)

@@ -4,12 +4,19 @@ from ricks.models import Rick
 from django.urls import reverse
 from rest_framework import status
 import json
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
 
 
 class MortyTestCase(APITestCase):
     """
     Test for CRUD functionalities for the 'morties' endpoint
     """
+    client = APIClient()
+
+    def setUp(self):
+        User.objects.create_superuser(username="admin", password="adminpass")
+        self.client.login(username="admin", password="adminpass")
 
     def test_get_all_morties(self):
         Morty.objects.create(universe="t380")
@@ -187,3 +194,22 @@ class MortyTestCase(APITestCase):
     def test_delete_one_morty_non_existent_id(self):
         response = self.client.delete(reverse("morties-detail", args=(5,)))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unlogged_user(self):
+        self.client.logout()
+        response = self.client.get(reverse("morties-list"))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_logged_user_is_not_admin_or_rick(self):
+        User.objects.create_user(username="notrick", password="notrickspass")
+        self.client.login(username="notrick", password="notrickspass")
+        response = self.client.get(reverse("morties-list"))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_logged_user_is_rick(self):
+        Rick.objects.create(universe="s350")
+        self.client.login(username="s350", password="rickspass")
+        Morty.objects.create(universe="t380")
+        response = self.client.get(reverse("morties-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
