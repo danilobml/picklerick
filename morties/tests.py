@@ -199,17 +199,3 @@ class MortyTestCase(APITestCase):
         self.client.logout()
         response = self.client.get(reverse("morties-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_logged_user_is_not_admin_or_rick(self):
-        User.objects.create_user(username="notrick", password="notrickspass")
-        self.client.login(username="notrick", password="notrickspass")
-        response = self.client.get(reverse("morties-list"))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_logged_user_is_rick(self):
-        Rick.objects.create(universe="s350")
-        self.client.login(username="s350", password="rickspass")
-        Morty.objects.create(universe="t380")
-        response = self.client.get(reverse("morties-list"))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)

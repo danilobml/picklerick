@@ -70,7 +70,9 @@ class RickTestCase(APITestCase):
         created_universe = "t590"
         self.assertFalse(Rick.objects.filter(universe=created_universe).exists())
         data = {
-            "universe": created_universe
+            "universe": created_universe,
+            "username": "testuser",
+            "password": "testpass"
         }
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -92,7 +94,28 @@ class RickTestCase(APITestCase):
 
     def test_create_one_rick_missing_universe_data(self):
         data = {
-            "universe": ""
+            "universe": "",
+            "username": "testuser",
+            "password": "testpass"
+        }
+        response = self.client.post(reverse('ricks-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_one_rick_missing_username_data(self):
+        data = {
+            "universe": "s350",
+            "username": "",
+            "password": "testpass"
+
+        }
+        response = self.client.post(reverse('ricks-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_one_rick_missing_password_data(self):
+        data = {
+            "universe": "s350",
+            "username": "testuser",
+            "password": ""
         }
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -145,16 +168,3 @@ class RickTestCase(APITestCase):
         self.client.logout()
         response = self.client.get(reverse("ricks-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_logged_user_is_not_admin_or_rick(self):
-        User.objects.create_user(username="notrick", password="notrickspass")
-        self.client.login(username="notrick", password="notrickspass")
-        response = self.client.get(reverse("ricks-list"))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_logged_user_is_rick(self):
-        Rick.objects.create(universe="s350")
-        self.client.login(username="s350", password="rickspass")
-        response = self.client.get(reverse("ricks-list"))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)

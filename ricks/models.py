@@ -7,4 +7,4 @@ class Rick(models.Model):
         A model for our infinite Ricks
     """
     universe = models.CharField(max_length=255, unique=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rick', null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='rick', null=True, blank=True)
