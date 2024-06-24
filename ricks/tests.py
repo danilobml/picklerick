@@ -33,8 +33,7 @@ class RickTestCase(APITestCase):
         self.assertEqual(response.data, {
             "id": new_rick.id,
             "universe": new_rick.universe,
-            "paired_morties": [],
-            "user": None
+            "paired_morties": []
             })
 
     def test_get_one_rick_with_all_paired_morties(self):
@@ -58,8 +57,7 @@ class RickTestCase(APITestCase):
                     "universe": paired_morty2.universe,
                     "is_alive": paired_morty2.is_alive,
                     "paired_rick": new_rick.id
-                }],
-            "user": None
+                }]
             })
 
     def test_get_one_rick_non_existent_id(self):
@@ -71,12 +69,12 @@ class RickTestCase(APITestCase):
         self.assertFalse(Rick.objects.filter(universe=created_universe).exists())
         data = {
             "universe": created_universe,
-            "username": "testuser",
             "password": "testpass"
         }
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(Rick.objects.filter(universe=created_universe).exists())
+        self.assertTrue(User.objects.filter(username=f"Rick{created_universe}").exists())
 
     def test_create_one_rick_already_existent_universe(self):
         existing_universe = "t590"
@@ -95,18 +93,7 @@ class RickTestCase(APITestCase):
     def test_create_one_rick_missing_universe_data(self):
         data = {
             "universe": "",
-            "username": "testuser",
             "password": "testpass"
-        }
-        response = self.client.post(reverse('ricks-list'), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_one_rick_missing_username_data(self):
-        data = {
-            "universe": "s350",
-            "username": "",
-            "password": "testpass"
-
         }
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -114,7 +101,6 @@ class RickTestCase(APITestCase):
     def test_create_one_rick_missing_password_data(self):
         data = {
             "universe": "s350",
-            "username": "testuser",
             "password": ""
         }
         response = self.client.post(reverse('ricks-list'), data)

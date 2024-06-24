@@ -11,13 +11,11 @@ class RickSerializer(serializers.ModelSerializer):
     """
 
     paired_morties = MortySerializer(many=True, read_only=True)
-    username = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)
 
     class Meta:
         model = Rick
-        fields = "__all__"
-        read_only_fields = ['user']
+        exclude = ('user',)
 
     def validate_universe(self, value):
         if self.instance and self.instance.universe != value:
@@ -25,8 +23,8 @@ class RickSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        username = validated_data.pop('username')
         password = validated_data.pop('password')
+        username = f"Rick{validated_data['universe']}"
 
         user = User.objects.create_user(username=username, password=password)
         validated_data['user'] = user
