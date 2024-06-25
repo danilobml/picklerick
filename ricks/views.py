@@ -7,5 +7,6 @@ class RickViewSet(ModelViewSet):
     """
         A viewset for viewing and editing Rick(s).
     """
+
     serializer_class = RickSerializer
     queryset = Rick.objects.all()

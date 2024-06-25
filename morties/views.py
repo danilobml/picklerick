@@ -8,5 +8,6 @@ class MortyViewSet(ModelViewSet):
     """
         A viewset for Morties.
     """
+
     serializer_class = MortySerializer
     queryset = Morty.objects.all()

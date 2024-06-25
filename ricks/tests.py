@@ -4,12 +4,20 @@ from .models import Rick
 from morties.models import Morty
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
 
 
 class RickTestCase(APITestCase):
     """
         Test for CRUD functionalities for the 'ricks' endpoint
     """
+
+    client = APIClient()
+
+    def setUp(self):
+        User.objects.create_superuser(username="admin", password="adminpass")
+        self.client.login(username="admin", password="adminpass")
 
     def test_get_all_ricks(self):
         Rick.objects.create(universe="t380")
@@ -60,11 +68,13 @@ class RickTestCase(APITestCase):
         created_universe = "t590"
         self.assertFalse(Rick.objects.filter(universe=created_universe).exists())
         data = {
-            "universe": created_universe
+            "universe": created_universe,
+            "password": "testpass"
         }
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(Rick.objects.filter(universe=created_universe).exists())
+        self.assertTrue(User.objects.filter(username=f"Rick{created_universe}").exists())
 
     def test_create_one_rick_already_existent_universe(self):
         existing_universe = "t590"
@@ -82,7 +92,16 @@ class RickTestCase(APITestCase):
 
     def test_create_one_rick_missing_universe_data(self):
         data = {
-            "universe": ""
+            "universe": "",
+            "password": "testpass"
+        }
+        response = self.client.post(reverse('ricks-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_one_rick_missing_password_data(self):
+        data = {
+            "universe": "s350",
+            "password": ""
         }
         response = self.client.post(reverse('ricks-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -130,3 +149,8 @@ class RickTestCase(APITestCase):
     def test_delete_one_rick_non_existent_id(self):
         response = self.client.delete(reverse('ricks-detail', args=(5,)))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unlogged_user(self):
+        self.client.logout()
+        response = self.client.get(reverse("ricks-list"))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
