@@ -154,3 +154,34 @@ class RickTestCase(APITestCase):
         self.client.logout()
         response = self.client.get(reverse("ricks-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_all_ricks_show_logged_ricks_morties(self):
+        rick_user = User.objects.create_user(username="Rickt380", password="testpass")
+        logged_rick = Rick(universe="t380", user=rick_user)
+        logged_rick.save()
+        other_rick = Rick(universe="x570")
+        other_rick.save()
+
+        morty_paired_to_logged_rick = Morty.objects.create(universe="t380", is_alive=True, paired_rick=logged_rick)
+        Morty.objects.create(universe="t460", is_alive=True, paired_rick=other_rick)
+
+        self.client.login(username="Rickt380", password="testpass")
+
+        response = self.client.get(reverse('ricks-list'))
+        self.assertEqual(response.data, [
+            {
+                "id": logged_rick.id,
+                "universe": logged_rick.universe,
+                "paired_morties": [
+                    {
+                        "id": morty_paired_to_logged_rick.id,
+                        "universe": morty_paired_to_logged_rick.universe,
+                        "is_alive": morty_paired_to_logged_rick.is_alive,
+                        "paired_rick": logged_rick.id
+                    }]
+            },
+            {
+                "id": other_rick.id,
+                "universe": other_rick.universe,
+                "paired_morties": []
+            }])
