@@ -10,7 +10,7 @@ class RickSerializer(serializers.ModelSerializer):
         Serializer for Ricks
     """
 
-    paired_morties = MortySerializer(many=True, read_only=True)
+    paired_morties = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -30,3 +30,9 @@ class RickSerializer(serializers.ModelSerializer):
         validated_data['user'] = user
 
         return super().create(validated_data)
+
+    def get_paired_morties(self, obj):
+        user = self.context['request'].user
+        if user == obj.user or user.is_staff:
+            return MortySerializer(obj.paired_morties.all(), many=True).data
+        return []
